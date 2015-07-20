@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <meta charset="utf-8"/>
+    <style type="text/css">
+    </style>
+
+    <!--script type="text/javascript" src="blr2000-02.js"> </script-->
+
+    <!--script type="text/javascript" src="blr2000-02.js"></script-->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+
+    <script type="text/javascript">
+
+        function readJson(data)
+        {
+            for (var begin = 2000; begin < 2004; begin++)
+            {
+                var year = begin.toString();
+                //window.alert("year is " + year);
+                document.write("Feb is " + data[year]["Feb"] + "<br>");
+            }
+        }
+
+        function mymain()
+        {
+            $.getJSON("blr2000-02.json", function(data) {
+                //document.write(data["2000"]["Jan"]);
+                //document.write(data["2000"]["Feb"]);
+                //var jsonData = JSON.parse(data);
+                readJson(data);
+            });
+
+        }
+
+    //@ sourceURL=j.html
+    </script>
+
+  </head>
+
+  <body onload="mymain()">
+
+  </body>
+
+</html>
