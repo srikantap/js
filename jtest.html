@@ -15,11 +15,11 @@
 
         function readJson(data)
         {
-            for (var begin = 2000; begin < 2004; begin++)
+            for (var begin = 2000; begin < 2003; begin++)
             {
                 var year = begin.toString();
                 //window.alert("year is " + year);
-                document.write("Feb is " + data[year]["Feb"] + "<br>");
+                document.write("Feb " + year + " was " + data[year]["Feb"] + "<br>");
             }
         }
 
