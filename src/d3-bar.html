@@ -15,8 +15,8 @@
     }
     </style>
 
-    <script type="text/javascript" src="lib/jquery.min.js" charset="utf-8"></script>
-    <script src="lib/d3.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../lib/jquery.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../lib/d3.min.js" charset="utf-8"></script>
 
     <script type="text/javascript">
 
@@ -86,7 +86,7 @@
 
         function doThings()
         {
-            $.getJSON("data/blr2000-02.json", showJson)
+            $.getJSON("../data/blr2000-02.json", showJson)
             .done(drawGraph)
             .fail(function() { console.error("getJSON Error!"); });
         }
