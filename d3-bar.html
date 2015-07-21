@@ -86,7 +86,7 @@
 
         function doThings()
         {
-            $.getJSON("blr2000-02.json", showJson)
+            $.getJSON("data/blr2000-02.json", showJson)
             .done(drawGraph)
             .fail(function() { console.error("getJSON Error!"); });
         }
