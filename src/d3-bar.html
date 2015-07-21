@@ -49,6 +49,10 @@
                 .attr("width", w)
                 .attr("height", h);
 
+            var scale = d3.scale.linear();
+            scale.domain([Math.min(raindata), Math.max(raindata)]);
+            scale.range([20, 200]);
+
             svg.selectAll("rect")
                 .data(raindata)
                 .enter()
@@ -61,7 +65,8 @@
                 })
                 .attr("width", w / raindata.length - barPadding)
                 .attr("height", function (d) {
-                    return d 
+                    //return scale(Math.round(d));
+                    return (d);
                 })
                 .attr("fill", function(d) {
                     return "rgb(0, 0, " + Math.round(d * 1.5) + ")";
@@ -91,7 +96,7 @@
             .fail(function() { console.error("getJSON Error!"); });
         }
 
-    //@ sourceURL=j.html
+    //# sourceURL=src/d3-bar.html
     </script>
 
   </head>
