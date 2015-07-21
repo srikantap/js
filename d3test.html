@@ -42,14 +42,46 @@
 
         function drawGraph(data)
         {
-            d3.select("body").selectAll("div")
+            //var raindata = [5, 10, 15, 20, 25, 22, 42];
+            var w = 800, h = 300, barPadding = 1;
+            var svg = d3.select("body")
+                .append("svg")
+                .attr("width", w)
+                .attr("height", h);
+
+            svg.selectAll("rect")
                 .data(raindata)
                 .enter()
-                .append("div")
-                .attr("class", "rainunits")
-                .style("height", function(d) {
-                        return (d + "px");
-                        });
+                .append("rect")
+                .attr("x", function(d, i) {
+                    return (i * (w / raindata.length));
+                })
+                .attr("y", function (d) {
+                    return (h - d)
+                })
+                .attr("width", w / raindata.length - barPadding)
+                .attr("height", function (d) {
+                    return d 
+                })
+                .attr("fill", function(d) {
+                    return "rgb(0, 0, " + Math.round(d * 1.5) + ")";
+                });
+
+                /* If text should be displayed
+                svg.selectAll("text")
+                    .data(raindata)
+                    .enter()
+                    .append("text")
+                    .text(function (d) {
+                        return Math.round(d);
+                    })
+                    .attr("x", function (d, i) {
+                        return (i * (w / raindata.length) + 2);
+                    })
+                    .attr("y", function (d, i) {
+                        return h - (d + 1);
+                    });
+                */
         }
 
         function doThings()
