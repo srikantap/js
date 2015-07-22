@@ -5,25 +5,15 @@
     <meta charset="utf-8"/>
 
     <style type="text/css">
-    div.rainunits
-    {
-        display: inline-block;
-        width: 20px;
-        height: 75px;
-        margin-right: 2px;
-        background-color: teal;
-    }
     </style>
 
-    <script type="text/javascript" src="../lib/jquery.min.js" charset="utf-8"></script>
     <script type="text/javascript" src="../lib/d3.min.js" charset="utf-8"></script>
 
     <script type="text/javascript">
 
-    var raindata = [];
-
         function showJson(data)
         {
+            var raindata = [];
             var yr, year, month;
 
             // Loop through all the years
@@ -38,6 +28,8 @@
                     raindata.push(data[year][month]);
                 }
             }
+
+            drawGraph(raindata);
         }
 
         function drawGraph(data)
@@ -50,56 +42,37 @@
                 .attr("height", h);
 
             var scale = d3.scale.linear();
-            scale.domain([Math.min(raindata), Math.max(raindata)]);
+            scale.domain([Math.min(data), Math.max(data)]);
             scale.range([20, 200]);
 
             svg.selectAll("rect")
-                .data(raindata)
+                .data(data)
                 .enter()
                 .append("rect")
                 .attr("x", function(d, i) {
-                    return (i * (w / raindata.length));
+                    return (i * (w / data.length));
                 })
                 .attr("y", function (d) {
                     return (h - d)
                 })
-                .attr("width", w / raindata.length - barPadding)
+                .attr("width", w / data.length - barPadding)
                 .attr("height", function (d) {
-                    //
-                    //return scale(Math.round(d));
                     return (d);
                 })
                 .attr("fill", function(d) {
                     return "rgb(0, 0, " + Math.round(d * 1.5) + ")";
                 });
 
-                /* If text should be displayed
-                svg.selectAll("text")
-                    .data(raindata)
-                    .enter()
-                    .append("text")
-                    .text(function (d) {
-                        return Math.round(d);
-                    })
-                    .attr("x", function (d, i) {
-                        return (i * (w / raindata.length) + 2);
-                    })
-                    .attr("y", function (d, i) {
-                        return h - (d + 1);
-                    });
-                */
+                //window.alert("Done more things");
         }
 
         function doThings()
         {
-            $.getJSON("../data/blr2000-02.json", showJson)
-            .done(drawGraph)
-            .fail(function() { console.error("getJSON Error!"); });
+            d3.json("../data/blr2000-02.json", showJson);
         }
 
     //# sourceURL=src/d3-bar.html
     </script>
-
   </head>
 
   <body onload="doThings()">
