@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title> DC Test </title>
+    <title> CF Test </title>
 
     <meta charset="utf-8"/>
 
@@ -38,14 +38,14 @@
         {
             var data = [
                 {date: "2011-11-14T16:17:54Z", quantity: 2, total: 190, tip: 100, type: "tab"},
-                {date: "2011-11-14T16:20:19Z", quantity: 2, total: 190, tip: 100, type: "tab"},
+                {date: "2011-11-14T16:20:19Z", quantity: 4, total: 190, tip: 100, type: "tab"},
                 {date: "2011-11-14T16:28:54Z", quantity: 1, total: 300, tip: 200, type: "visa"},
                 {date: "2011-11-14T16:30:43Z", quantity: 2, total: 90, tip: 0, type: "tab"},
                 {date: "2011-11-14T16:48:46Z", quantity: 2, total: 90, tip: 0, type: "tab"},
-                {date: "2011-11-14T16:53:41Z", quantity: 2, total: 90, tip: 0, type: "tab"},
+                {date: "2011-11-14T16:53:41Z", quantity: 6, total: 90, tip: 0, type: "tab"},
                 {date: "2011-11-14T16:54:06Z", quantity: 1, total: 100, tip: 0, type: "cash"},
                 {date: "2011-11-14T16:58:03Z", quantity: 2, total: 90, tip: 0, type: "tab"},
-                {date: "2011-11-14T17:07:21Z", quantity: 2, total: 90, tip: 0, type: "tab"},
+                {date: "2011-11-14T17:07:21Z", quantity: 9, total: 90, tip: 0, type: "tab"},
                 {date: "2011-11-14T17:22:59Z", quantity: 2, total: 90, tip: 0, type: "tab"},
                 {date: "2011-11-14T17:25:45Z", quantity: 2, total: 200, tip: 0, type: "cash"},
                 {date: "2011-11-14T17:29:52Z", quantity: 1, total: 200, tip: 100, type: "visa"}
@@ -53,6 +53,21 @@
 
             var cf = crossfilter(data);
 
+            var typeDim = cf.dimension(function(d) { return d.type; });
+            var typeGroup = typeDim.group();
+
+            /* Print count of items in the group. Ex: tab: 8, visa: 4, etc */
+            typeGroup.top(Infinity).forEach(function(d, i) {
+                //console.log(d.key + " : " + d.value);
+            });
+
+            var typeFilter = typeDim.filter("tab");
+            console.log("Num of cash: " + typeFilter.top(Infinity).length);
+            typeDim.top(Infinity).forEach(function(d, i) {
+                console.log(d.date + " : " + d.quantity);
+            });
+
+            typeDim.filterAll();
         }
 
         function doThings()
@@ -60,7 +75,7 @@
             d3.json("../data/blr2000-02.json", drawGraph);
         }
 
-    //# sourceURL=src/d3-bar.html
+    //# sourceURL=src/cf-test.html
     </script>
   </head>
 
