@@ -76,6 +76,14 @@
                 d.Year = year.getFullYear();
                 console.log(d.Year + "  " + typeof(d.Year));
             });
+            raindata.forEach(function(d) {
+                    d.Jan = Math.round(d.Jan);
+                    d.Feb = Math.round(d.Feb);
+                    d.Mar = Math.round(d.Mar);
+                    d.Apr = Math.round(d.Apr);
+                    d.May = Math.round(d.May);
+                    console.log(typeof(d.Jan), typeof(d.Feb), typeof(d.Mar), typeof(d.Apr), typeof(d.May));
+            });
             */
 
             var cf = crossfilter(raindata);
@@ -99,25 +107,41 @@
             //console.log("Min: " + minYear + " " + typeof(minYear));
             //console.log("Max: " + maxYear + " " + typeof(maxYear));
 
+            var parser = d3.time.format("%Y");
+            var formatter = d3.time.format("%Y");
+            var startDateString = formatter(parser.parse(minYear.toString()));
+            var endDateString = formatter(parser.parse(maxYear.toString()));
+
+            //console.log("Dates: " + startDateString, endDateString);
+
+            /**
+             * Group.top(1)[0].value gives the value in the first array of the top most item in the group. In our case, it is month value 
+             */
+            var minY = Math.min(jan.top(1)[0].value, feb.top(1)[0].value, mar.top(1)[0].value, apr.top(1)[0].value, may.top(1)[0].value);
+            var maxY = Math.max(jan.top(1)[0].value, feb.top(1)[0].value, mar.top(1)[0].value, apr.top(1)[0].value, may.top(1)[0].value);
+            //console.log("Min: Max:: " + minY, maxY);
+
             var mayLine = dc.lineChart("#rainfall-chart");
             mayLine
                 .width(600).height(200)
                 .margins({top: 20, right: 20, bottom: 20, left: 40})
                 .dimension(yearDim)
+                //.x(d3.time.scale().domain([new Date(startDateString), new Date(endDateString)]))
+                .x(d3.scale.linear().domain([2000, 2005]))
+                //.xUnits(d3.time.days)
+                //.xAxis().tickValues([2000, 2001, 2002, 2003, 2004, 2005])
+                //.elasticX(true)
                 .group(jan, "Jan")
                 .stack(feb, "Feb")
                 .stack(mar, "Mar")
                 .stack(apr, "Apr")
                 .stack(may, "May")
+                .elasticY(true)
                 .renderArea(true)
-                .x(d3.scale.linear().domain([minYear, maxYear]))
-                //.x(d3.time.scale().domain([new Date(2000, 1, 1), new Date(2006, 1, 1)]))
-                //.centerBar(true)    
-                //.x([2000, 2005])
-                .legend(dc.legend().x(50).y(10).itemHeight(13).gap(5));
-
-            mayLine.render();
-
+                .renderHorizontalGridLines(true)
+                .renderVerticalGridLines(true)
+                .y(d3.scale.linear().domain([minY, maxY]))
+                .legend(dc.legend().x(50).y(10).itemHeight(10).gap(5));
 
             var mayPie = dc.pieChart("#chart-ring-year");
             mayPie
