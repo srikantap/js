@@ -3,7 +3,7 @@
   <head>
     <title> CF Test </title>
 
-    <meta charset="utf-8"/>
+    <meta http-equiv="content-type" content="text/html"; charset="utf-8"/>
 
     <style type="text/css">
     </style>
@@ -36,43 +36,40 @@
 
         function drawGraph(raindata)
         {
-            var data = [
-                {date: "2011-11-14T16:17:54Z", quantity: 2, total: 190, tip: 100, type: "tab"},
-                {date: "2011-11-14T16:20:19Z", quantity: 4, total: 190, tip: 100, type: "tab"},
-                {date: "2011-11-14T16:28:54Z", quantity: 1, total: 300, tip: 200, type: "visa"},
-                {date: "2011-11-14T16:30:43Z", quantity: 2, total: 90, tip: 0, type: "tab"},
-                {date: "2011-11-14T16:48:46Z", quantity: 2, total: 90, tip: 0, type: "tab"},
-                {date: "2011-11-14T16:53:41Z", quantity: 6, total: 90, tip: 0, type: "tab"},
-                {date: "2011-11-14T16:54:06Z", quantity: 1, total: 100, tip: 0, type: "cash"},
-                {date: "2011-11-14T16:58:03Z", quantity: 2, total: 90, tip: 0, type: "tab"},
-                {date: "2011-11-14T17:07:21Z", quantity: 9, total: 90, tip: 0, type: "tab"},
-                {date: "2011-11-14T17:22:59Z", quantity: 2, total: 90, tip: 0, type: "tab"},
-                {date: "2011-11-14T17:25:45Z", quantity: 2, total: 200, tip: 0, type: "cash"},
-                {date: "2011-11-14T17:29:52Z", quantity: 1, total: 200, tip: 100, type: "visa"}
-                ]; 
+            /*
+            var str = JSON.stringify(raindata);
+            console.log(str);
+            return 0;
+            */
 
-            var cf = crossfilter(data);
+            var cf = crossfilter(raindata);
 
-            var typeDim = cf.dimension(function(d) { return d.type; });
-            var typeGroup = typeDim.group();
+            var yearDim = cf.dimension(function(d) { return d.Year; });
+            var yearGroup = yearDim.group();
 
-            /* Print count of items in the group. Ex: tab: 8, visa: 4, etc */
-            typeGroup.top(Infinity).forEach(function(d, i) {
+            /* Print a count of items in the group. Ex: tab: 8, visa: 4, etc */
+            yearGroup.top(Infinity).forEach(function(d, i) {
                 //console.log(d.key + " : " + d.value);
             });
 
-            var typeFilter = typeDim.filter("tab");
-            console.log("Num of cash: " + typeFilter.top(Infinity).length);
-            typeDim.top(Infinity).forEach(function(d, i) {
-                console.log(d.date + " : " + d.quantity);
+            var yearFilter = yearDim.filter("2000");
+            //console.log("Num of 2000: " + yearFilter.top(Infinity).length);
+            yearDim.top(Infinity).forEach(function(d, i) {
+                //console.log(d.Jan);
             });
 
-            typeDim.filterAll();
+            yearDim.filterAll();
+
+            var monthFilter = yearDim.filter("Jan");
+            //console.log("Num of Jan: " + monthFilter.top(Infinity).length);
+            yearDim.top(Infinity).forEach(function(d, i) {
+                console.log("Jan temp in " + d.Year + " is " + d.Jan);
+            });
         }
 
         function doThings()
         {
-            d3.json("../data/blr2000-02.json", drawGraph);
+            d3.json("../data/blr2000-02-array.json", drawGraph);
         }
 
     //# sourceURL=src/cf-test.html

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title> DC Test </title>
+
+    <meta http-equiv="content-type" content="text/html" charset="utf-8"/>
+
+    <style type="text/css">
+        <link rel="stylesheet" type="text/css" href="http://cdnjs.buttflare.com/ajax/libs/dc/1.7.0/dc.css" media="screen" />
+    </style>
+
+    <!--script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../lib/d3.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../lib/crossfilter.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../lib/dc.js"></script-->
+
+
+    <script type="text/javascript" src="../lib/jquery.min.js"></script>
+    <script type="text/javascript" src="../lib/crossfilter.min.js"></script> 
+    <script type="text/javascript" src="../lib/d3.min.js"></script>
+    <script type="text/javascript" src="../lib/dc.min.js"></script>
+    <!--script type="text/javascript" src="http://cdnjs.buttflare.com/ajax/libs/dc/1.7.0/dc.min.js"></script-->
+
+    <script type="text/javascript">
+
+/*
+        function print_filter(dim)
+        {
+            console.log("-------------------------------------------");
+
+            var dimData = dim.top(Infinity);
+            dimData.forEach(function (x) {
+                    console.log(JSON.stringify(x));
+                    });
+        }
+*/
+
+        function print_filter(filter){
+            var f=eval(filter);
+            if (typeof(f.length) != "undefined") {}else{}
+            if (typeof(f.top) != "undefined") {f=f.top(Infinity);}else{}
+            if (typeof(f.dimension) != "undefined") {f=f.dimension(function(d) { return "";}).top(Infinity);}else{}
+            console.log(filter+"("+f.length+") = "+JSON.stringify(f).replace("[","[\n\t").replace(/}\,/g,"},\n\t").replace("]","\n]"));
+        }
+
+        function drawGraph(raindata)
+        {
+            /*
+            str = JSON.stringify(raindata);
+            console.log(str);
+            return 0;
+            */
+
+            /*
+            raindata.forEach(function(d) {
+                //d.Year = format.parse(d.Year.value);
+                //d.Year = new Date(d.Year).getFullYear();
+                var year = new Date(d.Year.toString())
+                console.log("Before: " + d.Year + "  " + typeof(d.Year));
+                d.Year = year.getFullYear();
+                console.log(d.Year + "  " + typeof(d.Year));
+            });
+            */
+
+            var cf = crossfilter(raindata);
+
+            /* Year is our x-axis */
+            var yearDim = cf.dimension(function(d) { return d.Year; });
+
+            /*
+            var may = yearDim.group().reduceSum(function(d) {
+                return Math.round(d.May);
+            });
+            */
+            var jan = yearDim.group().reduceSum(dc.pluck('Jan'));
+            var feb = yearDim.group().reduceSum(dc.pluck('Feb'));
+            var mar = yearDim.group().reduceSum(dc.pluck('Mar'));
+            var apr = yearDim.group().reduceSum(dc.pluck('Apr'));
+            var may = yearDim.group().reduceSum(dc.pluck('May'));
+
+            var minYear = yearDim.bottom(1)[0].Year;
+            var maxYear = yearDim.top(1)[0].Year;
+            //console.log("Min: " + minYear + " " + typeof(minYear));
+            //console.log("Max: " + maxYear + " " + typeof(maxYear));
+
+            var timeFormat = d3.time.format("%y");
+            var mayLine = dc.lineChart("#rainfall-chart");
+            mayLine
+                .width(600).height(200)
+                .margins({top: 20, right: 20, bottom: 20, left: 40})
+                .dimension(yearDim)
+                .group(jan, "Jan")
+                .stack(feb, "Feb")
+                .stack(mar, "Mar")
+                .stack(apr, "Apr")
+                .stack(may, "May")
+                .renderArea(true)
+                .x(d3.time.scale().domain([minYear, maxYear]))
+                //.x(d3.time.scale().domain([new Date(2000, 1, 1), new Date(2006, 1, 1)]))
+                //.centerBar(true)    
+                //.x([2000, 2005])
+                .legend(dc.legend().x(50).y(10).itemHeight(13).gap(5));
+
+
+            var mayPie = dc.pieChart("#chart-ring-year");
+            mayPie
+                .width(200).height(200)
+                .dimension(yearDim)
+                .group(may)
+                .innerRadius(15);
+
+
+            var dataTable = dc.dataTable("#dc-data-table");
+            dataTable
+                .dimension(yearDim)
+                .group(function(d) { return d.Year; })
+                .columns([
+                    function(d) {return d.Jan; },
+                    function(d) {return d.Feb; },
+                    function(d) {return d.Mar; },
+                    function(d) {return d.Apr; },
+                    function(d) {return d.May; }
+                ]);
+
+
+            //window.alert("Going to render");
+            dc.renderAll();
+
+            //console.log("Min and Max: " + minYear + " : " + maxYear);
+
+            /* Print a count of items in the group. Ex: tab: 8, visa: 4, etc */
+            /*
+            yearGroup.top(Infinity).forEach(function(d, i) {
+                //console.log(d.key + " : " + d.value);
+            });
+
+            yearDim.filterAll();
+            */
+        }
+
+        function doThings()
+        {
+            d3.json("../data/test.json", drawGraph);
+        }
+
+    //# sourceURL=src/dc-test.html
+    </script>
+  </head>
+
+<body>
+
+    <div id="chart-ring-year"></div>
+    <div id="rainfall-chart"></div>
+
+
+    <div style='clear:both;'>
+		<table id="dc-data-table">
+			<thead name="Sri">
+			<tr class="header">
+				<th>Jan</th>
+				<th>Feb</th>
+				<th>Mar</th>
+				<th>Apr</th>
+				<th>May</th>
+			</tr>
+			</thead>
+		</table>
+   </div> 
+
+    <script type="text/javascript">
+        window.onload = doThings;
+    </script>
+
+</body>
+</html>
