@@ -1,28 +1,44 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <title> DC Test </title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../css/dc.css"/>
+    <!--link rel="stylesheet" type="text/css" href="http://cdnjs.buttflare.com/ajax/libs/dc/1.7.0/dc.css" media="screen" /-->
+    <!--link rel="stylesheet" type="text/css" href="https://raw.githubusercontent.com/dc-js/dc.js/master/web/css/dc.css"/-->
 
-    <meta http-equiv="content-type" content="text/html" charset="utf-8"/>
-
-    <style type="text/css">
-        <link rel="stylesheet" type="text/css" href="http://cdnjs.buttflare.com/ajax/libs/dc/1.7.0/dc.css" media="screen" />
-    </style>
+  </head>
+  <body>
 
     <!--script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.js" charset="utf-8"></script>
-    <script type="text/javascript" src="../lib/d3.min.js" charset="utf-8"></script>
     <script type="text/javascript" src="../lib/crossfilter.js" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
     <script type="text/javascript" src="../lib/dc.js"></script-->
-
-
-    <script type="text/javascript" src="../lib/jquery.min.js"></script>
-    <script type="text/javascript" src="../lib/crossfilter.min.js"></script> 
-    <script type="text/javascript" src="../lib/d3.min.js"></script>
-    <script type="text/javascript" src="../lib/dc.min.js"></script>
+    <!--script type="text/javascript" src="../lib/d3.min.js"></script-->
     <!--script type="text/javascript" src="http://cdnjs.buttflare.com/ajax/libs/dc/1.7.0/dc.min.js"></script-->
 
-    <script type="text/javascript">
+    <script type="text/javascript" src="../lib/crossfilter.min.js"></script> 
+    <script type="text/javascript" src="../lib/d3.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../lib/dc.min.js"></script>
 
+    <div id="chart-ring-year"></div>
+    <div id="rainfall-chart"></div>
+
+    <div style='clear:both;'>
+		<table id="dc-data-table">
+			<thead name="Sri">
+			<tr class="header">
+				<th>Jan</th>
+				<th>Feb</th>
+				<th>Mar</th>
+				<th>Apr</th>
+				<th>May</th>
+			</tr>
+			</thead>
+		</table>
+    </div> 
+
+    <script type="text/javascript">
 /*
         function print_filter(dim)
         {
@@ -83,7 +99,6 @@
             //console.log("Min: " + minYear + " " + typeof(minYear));
             //console.log("Max: " + maxYear + " " + typeof(maxYear));
 
-            var timeFormat = d3.time.format("%y");
             var mayLine = dc.lineChart("#rainfall-chart");
             mayLine
                 .width(600).height(200)
@@ -95,11 +110,13 @@
                 .stack(apr, "Apr")
                 .stack(may, "May")
                 .renderArea(true)
-                .x(d3.time.scale().domain([minYear, maxYear]))
+                .x(d3.scale.linear().domain([minYear, maxYear]))
                 //.x(d3.time.scale().domain([new Date(2000, 1, 1), new Date(2006, 1, 1)]))
                 //.centerBar(true)    
                 //.x([2000, 2005])
                 .legend(dc.legend().x(50).y(10).itemHeight(13).gap(5));
+
+            mayLine.render();
 
 
             var mayPie = dc.pieChart("#chart-ring-year");
@@ -143,32 +160,9 @@
             d3.json("../data/test.json", drawGraph);
         }
 
-    //# sourceURL=src/dc-test.html
-    </script>
-  </head>
-
-<body>
-
-    <div id="chart-ring-year"></div>
-    <div id="rainfall-chart"></div>
-
-
-    <div style='clear:both;'>
-		<table id="dc-data-table">
-			<thead name="Sri">
-			<tr class="header">
-				<th>Jan</th>
-				<th>Feb</th>
-				<th>Mar</th>
-				<th>Apr</th>
-				<th>May</th>
-			</tr>
-			</thead>
-		</table>
-   </div> 
-
-    <script type="text/javascript">
         window.onload = doThings;
+
+    //# sourceURL=src/dc-test.html
     </script>
 
 </body>
