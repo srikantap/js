@@ -51,7 +51,8 @@
             var format = d3.time.format("%Y");
             raindata.forEach(function(d) {
                 d.Year = new Date(d.Year,1,0);
-                //console.log("After: " + d.Year + "  " + typeof(d.Year));
+                d.total = d.Jan + d.Feb + d.Mar + d.Apr + d.May + d.Jun + d.Jul + d.Aug + d.Sep + d.Oct + d.Nov + d.Dec;
+                console.log("Total rainfall for " + d.Year + " is " + d.total);
             });
             /*
             raindata.forEach(function(d) {
@@ -74,6 +75,7 @@
                 return Math.round(d.May);
             });
             */
+            var total = yearDim.group().reduceSum(dc.pluck('total'));
             var jan = yearDim.group().reduceSum(dc.pluck('Jan'));
             var feb = yearDim.group().reduceSum(dc.pluck('Feb'));
             var mar = yearDim.group().reduceSum(dc.pluck('Mar'));
@@ -86,20 +88,16 @@
             //console.log("Min: " + minYear + " " + typeof(minYear));
             //console.log("Max: " + maxYear + " " + typeof(maxYear));
 
-            /**
-             * Group.top(1)[0].value gives the value in the first array of the top most item in the group. In our case, it is month value 
-             */
-            var minY = Math.min(jan.top(1)[0].value, feb.top(1)[0].value, mar.top(1)[0].value, apr.top(1)[0].value, may.top(1)[0].value);
-            var maxY = Math.max(jan.top(1)[0].value, feb.top(1)[0].value, mar.top(1)[0].value, apr.top(1)[0].value, may.top(1)[0].value);
-            //console.log("Min: Max:: " + minY, maxY);
+            var year_total = yearDim.group().reduceSum(function(d) {return d.total;});
 
-            var mayLine = dc.lineChart("#rainfall-chart");
-            mayLine
+            var totalRainLine = dc.lineChart("#rainfall-chart");
+            totalRainLine
                 .width(600).height(300)
                 .margins({top: 40, right: 40, bottom: 20, left: 40})
                 .dimension(yearDim)
                 .elasticX(true)
                 .x(d3.time.scale().domain([minYear, maxYear]) )
+                //.group(year_total, "Total Rainfall")
                 .group(jan, "Jan")
                 .stack(feb, "Feb")
                 .stack(mar, "Mar")
@@ -111,21 +109,20 @@
                 .renderVerticalGridLines(true)
                 .yAxisLabel("Rainfall (mm)")
                 .xAxisLabel("Year")
-                //.y(d3.scale.linear().domain([minY, maxY]))
                 .legend(dc.legend().x(50).y(10).itemHeight(10).gap(5));
 
-            var mayPie = dc.pieChart("#chart-ring-year");
-            mayPie
+
+            var totalRainPie = dc.pieChart("#chart-ring-year");
+            totalRainPie
                 .width(200).height(200)
                 .dimension(yearDim)
-                .group(may)
+                .group(year_total)
                 .innerRadius(15);
-
 
             var dataTable = dc.dataTable("#dc-data-table");
             dataTable
                 .dimension(yearDim)
-                .group(function(d) { return d.Year; })
+                .group(function(d) { return d.Year.getFullYear(); })
                 .columns([
                     function(d) {return d.Jan; },
                     function(d) {return d.Feb; },
