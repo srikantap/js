@@ -67,15 +67,17 @@
             return 0;
             */
 
-            /*
+            var format = d3.time.format("%Y");
             raindata.forEach(function(d) {
+                //console.log("Before: " + d.Year + "  " + typeof(d.Year));
+                //raindata.Year = parseDate(raindata.Year);
                 //d.Year = format.parse(d.Year.value);
-                //d.Year = new Date(d.Year).getFullYear();
-                var year = new Date(d.Year.toString())
-                console.log("Before: " + d.Year + "  " + typeof(d.Year));
-                d.Year = year.getFullYear();
-                console.log(d.Year + "  " + typeof(d.Year));
+                d.Year = new Date(d.Year,1,0);
+                //var year = new Date(d.Year.toString())
+                //d.Year = year.getFullYear();
+                //console.log("After: " + d.Year + "  " + typeof(d.Year));
             });
+            /*
             raindata.forEach(function(d) {
                     d.Jan = Math.round(d.Jan);
                     d.Feb = Math.round(d.Feb);
@@ -103,16 +105,21 @@
             var may = yearDim.group().reduceSum(dc.pluck('May'));
 
             var minYear = yearDim.bottom(1)[0].Year;
-            var maxYear = yearDim.top(1)[0].Year + 1;
+            var maxYear = yearDim.top(1)[0].Year;
+
+            /** Increment max year to be included in the x axis */
+            maxYear.setFullYear(maxYear.getFullYear() + 1);
             //console.log("Min: " + minYear + " " + typeof(minYear));
             //console.log("Max: " + maxYear + " " + typeof(maxYear));
 
+            /*
             var parser = d3.time.format("%Y");
             var formatter = d3.time.format("%Y");
             var startDateString = formatter(parser.parse(minYear.toString()));
             var endDateString = formatter(parser.parse(maxYear.toString()));
+            */
 
-            console.log("Dates: " + startDateString, endDateString);
+            //console.log("Dates: " + startDateString, endDateString);
 
             /**
              * Group.top(1)[0].value gives the value in the first array of the top most item in the group. In our case, it is month value 
@@ -123,12 +130,12 @@
 
             var mayLine = dc.lineChart("#rainfall-chart");
             mayLine
-                .width(600).height(200)
-                .margins({top: 20, right: 20, bottom: 20, left: 40})
+                .width(600).height(300)
+                .margins({top: 40, right: 40, bottom: 20, left: 40})
                 .dimension(yearDim)
                 .elasticX(true)
-                //.x(d3.time.scale().domain([new Date(startDateString), new Date(endDateString)])) // ** Axis working; Values not **
-                .x(d3.scale.linear().domain([2000, 2006])) // ** Values Working; Axis not **
+                .x(d3.time.scale().domain([minYear, maxYear]) ) // ** Axis working; Values not **
+                //.x(d3.scale.linear().domain([2000, 2006])) // ** Values Working; Axis not **
                 /*
                 .x(d3.scale.linear()
                     .domain([2000, 2005])
@@ -136,7 +143,8 @@
                 */
                 //.xUnits(d3.time.days)
                 //.xAxis().tickValues([2000, 2001, 2002, 2003, 2004, 2005])
-                //.elasticX(true)
+                .round(d3.time.month.round)
+                .xUnits(d3.time.months)
                 .group(jan, "Jan")
                 .stack(feb, "Feb")
                 .stack(mar, "Mar")
@@ -146,6 +154,8 @@
                 .renderArea(true)
                 .renderHorizontalGridLines(true)
                 .renderVerticalGridLines(true)
+                .yAxisLabel("Rainfall (mm)")
+                .xAxisLabel("Year")
                 //.y(d3.scale.linear().domain([minY, maxY]))
                 .legend(dc.legend().x(50).y(10).itemHeight(10).gap(5));
 
