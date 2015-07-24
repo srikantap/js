@@ -103,7 +103,7 @@
             var may = yearDim.group().reduceSum(dc.pluck('May'));
 
             var minYear = yearDim.bottom(1)[0].Year;
-            var maxYear = yearDim.top(1)[0].Year;
+            var maxYear = yearDim.top(1)[0].Year + 1;
             //console.log("Min: " + minYear + " " + typeof(minYear));
             //console.log("Max: " + maxYear + " " + typeof(maxYear));
 
@@ -112,7 +112,7 @@
             var startDateString = formatter(parser.parse(minYear.toString()));
             var endDateString = formatter(parser.parse(maxYear.toString()));
 
-            //console.log("Dates: " + startDateString, endDateString);
+            console.log("Dates: " + startDateString, endDateString);
 
             /**
              * Group.top(1)[0].value gives the value in the first array of the top most item in the group. In our case, it is month value 
@@ -126,8 +126,14 @@
                 .width(600).height(200)
                 .margins({top: 20, right: 20, bottom: 20, left: 40})
                 .dimension(yearDim)
-                //.x(d3.time.scale().domain([new Date(startDateString), new Date(endDateString)]))
-                .x(d3.scale.linear().domain([2000, 2005]))
+                .elasticX(true)
+                //.x(d3.time.scale().domain([new Date(startDateString), new Date(endDateString)])) // ** Axis working; Values not **
+                .x(d3.scale.linear().domain([2000, 2006])) // ** Values Working; Axis not **
+                /*
+                .x(d3.scale.linear()
+                    .domain([2000, 2005])
+                    .range([2000, 2005]))
+                */
                 //.xUnits(d3.time.days)
                 //.xAxis().tickValues([2000, 2001, 2002, 2003, 2004, 2005])
                 //.elasticX(true)
@@ -140,7 +146,7 @@
                 .renderArea(true)
                 .renderHorizontalGridLines(true)
                 .renderVerticalGridLines(true)
-                .y(d3.scale.linear().domain([minY, maxY]))
+                //.y(d3.scale.linear().domain([minY, maxY]))
                 .legend(dc.legend().x(50).y(10).itemHeight(10).gap(5));
 
             var mayPie = dc.pieChart("#chart-ring-year");
