@@ -33,6 +33,13 @@
 				<th>Mar</th>
 				<th>Apr</th>
 				<th>May</th>
+				<th>Jun</th>
+				<th>Jul</th>
+				<th>Aug</th>
+				<th>Sep</th>
+				<th>Oct</th>
+				<th>Nov</th>
+				<th>Dec</th>
 			</tr>
 			</thead>
 		</table>
@@ -117,7 +124,10 @@
                 .width(200).height(200)
                 .dimension(yearDim)
                 .group(year_total)
-                .innerRadius(15);
+                .innerRadius(15)
+                .label(function (d) {
+                    return(d.key.getFullYear());
+                });
 
             var dataTable = dc.dataTable("#dc-data-table");
             dataTable
@@ -128,7 +138,14 @@
                     function(d) {return d.Feb; },
                     function(d) {return d.Mar; },
                     function(d) {return d.Apr; },
-                    function(d) {return d.May; }
+                    function(d) {return d.May; },
+                    function(d) {return d.Jun; },
+                    function(d) {return d.Jul; },
+                    function(d) {return d.Aug; },
+                    function(d) {return d.Sep; },
+                    function(d) {return d.Oct; },
+                    function(d) {return d.Nov; },
+                    function(d) {return d.Dec; }
                 ]);
 
 
