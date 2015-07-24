@@ -39,25 +39,6 @@
     </div> 
 
     <script type="text/javascript">
-/*
-        function print_filter(dim)
-        {
-            console.log("-------------------------------------------");
-
-            var dimData = dim.top(Infinity);
-            dimData.forEach(function (x) {
-                    console.log(JSON.stringify(x));
-                    });
-        }
-*/
-
-        function print_filter(filter){
-            var f=eval(filter);
-            if (typeof(f.length) != "undefined") {}else{}
-            if (typeof(f.top) != "undefined") {f=f.top(Infinity);}else{}
-            if (typeof(f.dimension) != "undefined") {f=f.dimension(function(d) { return "";}).top(Infinity);}else{}
-            console.log(filter+"("+f.length+") = "+JSON.stringify(f).replace("[","[\n\t").replace(/}\,/g,"},\n\t").replace("]","\n]"));
-        }
 
         function drawGraph(raindata)
         {
@@ -69,12 +50,7 @@
 
             var format = d3.time.format("%Y");
             raindata.forEach(function(d) {
-                //console.log("Before: " + d.Year + "  " + typeof(d.Year));
-                //raindata.Year = parseDate(raindata.Year);
-                //d.Year = format.parse(d.Year.value);
                 d.Year = new Date(d.Year,1,0);
-                //var year = new Date(d.Year.toString())
-                //d.Year = year.getFullYear();
                 //console.log("After: " + d.Year + "  " + typeof(d.Year));
             });
             /*
@@ -107,19 +83,8 @@
             var minYear = yearDim.bottom(1)[0].Year;
             var maxYear = yearDim.top(1)[0].Year;
 
-            /** Increment max year to be included in the x axis */
-            maxYear.setFullYear(maxYear.getFullYear() + 1);
             //console.log("Min: " + minYear + " " + typeof(minYear));
             //console.log("Max: " + maxYear + " " + typeof(maxYear));
-
-            /*
-            var parser = d3.time.format("%Y");
-            var formatter = d3.time.format("%Y");
-            var startDateString = formatter(parser.parse(minYear.toString()));
-            var endDateString = formatter(parser.parse(maxYear.toString()));
-            */
-
-            //console.log("Dates: " + startDateString, endDateString);
 
             /**
              * Group.top(1)[0].value gives the value in the first array of the top most item in the group. In our case, it is month value 
@@ -134,17 +99,7 @@
                 .margins({top: 40, right: 40, bottom: 20, left: 40})
                 .dimension(yearDim)
                 .elasticX(true)
-                .x(d3.time.scale().domain([minYear, maxYear]) ) // ** Axis working; Values not **
-                //.x(d3.scale.linear().domain([2000, 2006])) // ** Values Working; Axis not **
-                /*
-                .x(d3.scale.linear()
-                    .domain([2000, 2005])
-                    .range([2000, 2005]))
-                */
-                //.xUnits(d3.time.days)
-                //.xAxis().tickValues([2000, 2001, 2002, 2003, 2004, 2005])
-                .round(d3.time.month.round)
-                .xUnits(d3.time.months)
+                .x(d3.time.scale().domain([minYear, maxYear]) )
                 .group(jan, "Jan")
                 .stack(feb, "Feb")
                 .stack(mar, "Mar")
@@ -180,19 +135,7 @@
                 ]);
 
 
-            //window.alert("Going to render");
             dc.renderAll();
-
-            //console.log("Min and Max: " + minYear + " : " + maxYear);
-
-            /* Print a count of items in the group. Ex: tab: 8, visa: 4, etc */
-            /*
-            yearGroup.top(Infinity).forEach(function(d, i) {
-                //console.log(d.key + " : " + d.value);
-            });
-
-            yearDim.filterAll();
-            */
         }
 
         function doThings()
