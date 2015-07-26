@@ -55,11 +55,10 @@
             return 0;
             */
 
-            var format = d3.time.format("%Y");
             raindata.forEach(function(d) {
                 d.Year = new Date(d.Year,1,0);
                 d.total = d.Jan + d.Feb + d.Mar + d.Apr + d.May + d.Jun + d.Jul + d.Aug + d.Sep + d.Oct + d.Nov + d.Dec;
-                console.log("Total rainfall for " + d.Year + " is " + d.total);
+                //console.log("Total rainfall for " + d.Year + " is " + d.total);
             });
             /*
             raindata.forEach(function(d) {

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title> Rainfall + MinMax Temp Dashboard</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../css/dc.css"/>
+
+  </head>
+  <body>
+
+    <script type="text/javascript" src="../lib/crossfilter.min.js"></script> 
+    <script type="text/javascript" src="../lib/d3.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../lib/dc.min.js"></script>
+    <script type="text/javascript" src="https://raw.githubusercontent.com/mbostock/queue/master/queue.min.js"></script>
+
+    <div id="rainfall-chart"></div>
+    <div id="monthly-chart"></div>
+
+    <div>
+		<table id="dc-data-table">
+			<thead>
+			<tr class="header">
+				<th>Jan</th>
+				<th>Feb</th>
+				<th>Mar</th>
+				<th>Apr</th>
+				<th>May</th>
+			</tr>
+			</thead>
+		</table>
+    </div> 
+
+    <script type="text/javascript">
+
+        function startDoingThings()
+        {
+            queue()
+                .defer(d3.csv, "../data/all-state-ids.csv")
+                .defer(d3.csv, "../data/all-dist-ids.csv")
+                .defer(d3.csv, "../data/all-dist-precip.csv")
+                .await(analyze);
+        }
+
+        function drawGraphs(state, dist, rain)
+        {
+            var cf = crossfilter(rain);
+
+            var yearDim = cf.dimension(function(d) {
+                return (d.year_val);
+            });
+
+            var jan = yearDim.group().reduceSum(dc.pluck('jan'));
+            var feb = yearDim.group().reduceSum(dc.pluck('feb'));
+            var mar = yearDim.group().reduceSum(dc.pluck('mar'));
+            var apr = yearDim.group().reduceSum(dc.pluck('apr'));
+            var may = yearDim.group().reduceSum(dc.pluck('may'));
+
+            var minYear = yearDim.bottom(1)[0].year_val;
+            var maxYear = yearDim.top(1)[0].year_val;
+
+            var totalRainLine = dc.lineChart("#rainfall-chart");
+            totalRainLine
+                .width(1000).height(400)
+                .margins({top: 80, right: 80, bottom: 40, left: 80})
+                .dimension(yearDim)
+                .elasticX(true)
+                .x(d3.time.scale().domain([minYear, maxYear]))
+                .group(jan, "Jan")
+                .stack(feb, "Feb")
+                .stack(mar, "Mar")
+                .stack(apr, "Apr")
+                .stack(may, "May")
+                .elasticY(true)
+                .renderArea(true)
+                .renderHorizontalGridLines(true)
+                .renderVerticalGridLines(true)
+                .yAxisLabel("Rainfall (mm)")
+                .xAxisLabel("Year")
+                .legend(dc.legend().x(50).y(10).itemHeight(10).gap(5));
+
+            var stateDim = cf.dimension(function(d) {
+                return d.stateid;
+            });
+
+            var mayTotal = stateDim.group().reduceSum(function(d) {return d.may;});
+
+            var totalRainPie = dc.pieChart("#monthly-chart");
+            totalRainPie
+                .width(200).height(200)
+                .dimension(stateDim)
+                .group(mayTotal)
+                .innerRadius(15)
+                .label(function (d) {
+                    state.forEach(function (map)
+                    {
+                        if (map.id === d.stateid)
+                            return(map.states);
+                    });
+                });
+
+            /*
+            var dataTable = dc.dataTable("#dc-data-table");
+            dataTable
+                .dimension(stateDim)
+                .group(function(d) { return d.year_val; })
+                .columns([
+                    function(d) {return d.jan; },
+                    function(d) {return d.feb; },
+                    function(d) {return d.mar; },
+                    function(d) {return d.apr; },
+                    function(d) {return d.may; },
+                ]);
+            */
+
+            dc.renderAll();
+        }
+
+        function analyze(error, state, dist, rain)
+        {
+            if (error) { console.log(error); }
+
+            state.forEach(function (d) {
+                d.id = +d.id;
+            });
+
+            dist.forEach(function (d) {
+                d.id = +d.id;
+            });
+
+            var format = d3.time.format("%Y");
+            rain.forEach(function (d) {
+                d.stateid = +d.stateid;
+                d.districtid = +d.districtid;
+                d.year_val = +d.year_val;
+                d.year_val = new Date(d.year_val, 1, 0);
+                d.jan = +d.jan;
+                d.feb = +d.feb;
+                d.mar = +d.mar;
+                d.apr = +d.apr;
+                d.may = +d.may;
+                d.jun = +d.jun;
+                d.jul = +d.jul;
+                d.aug = +d.aug;
+                d.sep = +d.sep;
+                d.oct = +d.oct;
+                d.nov = +d.nov;
+                d.dece = +d.dece;
+            });
+
+            drawGraphs(state, dist, rain);
+        }
+
+        window.onload = startDoingThings;
+
+    //# sourceURL=src/rain-minmax-temp.html
+    </script>
+
+</body>
+</html>
