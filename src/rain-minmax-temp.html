@@ -15,6 +15,8 @@
 
     <div id="rainfall-chart"></div>
     <div id="monthly-chart"></div>
+    <br>
+    <div id="state-row-chart"></div>
 
     <div>
 		<table id="dc-data-table">
@@ -79,26 +81,27 @@
                 .legend(dc.legend().x(50).y(10).itemHeight(10).gap(5));
 
             var stateDim = cf.dimension(function(d) {
-                return d.stateid;
+                return d.statename;
             });
 
-            var mayTotal = stateDim.group().reduceSum(function(d) {return d.may;});
+            var totalRain = stateDim.group().reduceSum(function(d) {return d.total;});
 
             var totalRainPie = dc.pieChart("#monthly-chart");
             totalRainPie
-                .width(200).height(200)
+                .width(300).height(300)
+                .slicesCap(7)
                 .dimension(stateDim)
-                .group(mayTotal)
+                .group(totalRain)
                 .innerRadius(15)
-                .label(function (d) {
-                    state.forEach(function (map)
-                    {
-                        if (map.id === d.stateid)
-                            return(map.states);
-                    });
-                });
+                .legend(dc.legend());
 
-            /*
+            var stateRow = dc.rowChart("#state-row-chart");
+            stateRow
+                .width(850).height(800)
+                .dimension(stateDim)
+                .group(totalRain)
+                .elasticX(true);
+
             var dataTable = dc.dataTable("#dc-data-table");
             dataTable
                 .dimension(stateDim)
@@ -110,7 +113,6 @@
                     function(d) {return d.apr; },
                     function(d) {return d.may; },
                 ]);
-            */
 
             dc.renderAll();
         }
@@ -130,6 +132,7 @@
             var format = d3.time.format("%Y");
             rain.forEach(function (d) {
                 d.stateid = +d.stateid;
+                var test = d.stateid;
                 d.districtid = +d.districtid;
                 d.year_val = +d.year_val;
                 d.year_val = new Date(d.year_val, 1, 0);
@@ -145,6 +148,29 @@
                 d.oct = +d.oct;
                 d.nov = +d.nov;
                 d.dece = +d.dece;
+                d.total = d.jan + d.feb + d.mar + d.apr + d.may + d.jun + d.jul + d.aug + d.sep + d.oct + d.nov + d.dece;
+            });
+
+
+            rain.forEach(function(d) {
+                state.forEach(function (st_map) {
+                    if(d.stateid === st_map.id)
+                    {
+                        d.statename = st_map.states;
+                        //console.log ("Got " + d.stateid + " for " + d.statename);
+                    }
+
+                });
+            });
+
+            rain.forEach(function(d) {
+                dist.forEach(function (dist_map) {
+                    if (d.districtid === dist_map.id)
+                    {
+                        d.distname = dist_map.district;
+                        //console.log ("Dist: " + d.districtid + " : " + d.distname + " State: " + d.stateid + " : " + d.statename);
+                    }
+                });
             });
 
             drawGraphs(state, dist, rain);
