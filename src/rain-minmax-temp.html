@@ -36,9 +36,10 @@
 
         function startDoingThings()
         {
+            window.alert("In startDoingThings()");
+
             queue()
-                .defer(d3.csv, "../data/all-state-ids.csv")
-                .defer(d3.csv, "../data/all-dist-ids.csv")
+                .defer(d3.csv, "../data/state-dist-map.csv")
                 .defer(d3.csv, "../data/all-dist-precip.csv")
                 .await(analyze);
         }
@@ -117,22 +118,21 @@
             dc.renderAll();
         }
 
-        function analyze(error, state, dist, rain)
+        function analyze(error, st_dist_map, rain)
         {
+            window.alert("In analyze()");
+
             if (error) { console.log(error); }
 
-            state.forEach(function (d) {
-                d.id = +d.id;
+            st_dist_map.forEach(function (d) {
+                d.statecode = +d.statecode;
+                d.districtcode = +d.districtcode;
             });
-
-            dist.forEach(function (d) {
-                d.id = +d.id;
-            });
+            window.alert("Done st_dist_map coercion");
 
             var format = d3.time.format("%Y");
             rain.forEach(function (d) {
                 d.stateid = +d.stateid;
-                var test = d.stateid;
                 d.districtid = +d.districtid;
                 d.year_val = +d.year_val;
                 d.year_val = new Date(d.year_val, 1, 0);
@@ -151,29 +151,27 @@
                 d.total = d.jan + d.feb + d.mar + d.apr + d.may + d.jun + d.jul + d.aug + d.sep + d.oct + d.nov + d.dece;
             });
 
+            window.alert("Done rain coercion");
 
+            /*
             rain.forEach(function(d) {
-                state.forEach(function (st_map) {
-                    if(d.stateid === st_map.id)
+                st_dist_map.forEach(function (map) {
+                    if(d.stateid === map.statecode)
                     {
-                        d.statename = st_map.states;
+                        d.statename = map.statename;
                         //console.log ("Got " + d.stateid + " for " + d.statename);
-                    }
 
-                });
-            });
-
-            rain.forEach(function(d) {
-                dist.forEach(function (dist_map) {
-                    if (d.districtid === dist_map.id)
-                    {
-                        d.distname = dist_map.district;
-                        //console.log ("Dist: " + d.districtid + " : " + d.distname + " State: " + d.stateid + " : " + d.statename);
+                        if (d.distid === map.districtcode)
+                        {
+                            d.distname = map.district;
+                            //console.log ("Got " + d.distid + " for " + d.district);
+                        }
                     }
                 });
             });
+            */
 
-            drawGraphs(state, dist, rain);
+            //drawGraphs(state, dist, rain);
         }
 
         window.onload = startDoingThings;
