@@ -13,12 +13,32 @@
     <script type="text/javascript" src="../lib/dc.min.js"></script>
     <script type="text/javascript" src="../lib/queue.min.js"></script>
 
+    <a href='javascript:dc.filterAll(); dc.redrawAll();'>Reset All</a>
     <div id="rainfall-chart"></div>
     <div id="monthly-chart"></div>
     <br>
     <div id="state-row-chart"></div>
 
-    <div>
+    <div id='dc-data-table'>
+    <div class='header'>
+        <span>Jan</span>
+        <span>Feb</span>
+        <span>Mar</span>
+        <span>Apr</span>
+        <span>May</span>
+        <span>Jun</span>
+        <span>Jul</span>
+        <span>Aug</span>
+        <span>Sep</span>
+        <span>Oct</span>
+        <span>Nov</span>
+        <span>Dec</span>
+        <span>TOTAL</span>
+    </div>
+    <!-- data rows will filled in here -->
+    </div>
+
+    <!--div>
 		<table id="dc-data-table">
 			<thead>
 			<tr class="header">
@@ -27,10 +47,17 @@
 				<th>Mar</th>
 				<th>Apr</th>
 				<th>May</th>
+				<th>Jun</th>
+				<th>Jul</th>
+				<th>Aug</th>
+				<th>Sep</th>
+				<th>Oct</th>
+				<th>Nov</th>
+				<th>Dec</th>
 			</tr>
 			</thead>
 		</table>
-    </div> 
+    </div--> 
 
     <script type="text/javascript">
 
@@ -57,6 +84,14 @@
             var mar = yearDim.group().reduceSum(dc.pluck('mar'));
             var apr = yearDim.group().reduceSum(dc.pluck('apr'));
             var may = yearDim.group().reduceSum(dc.pluck('may'));
+            var jun = yearDim.group().reduceSum(dc.pluck('jun'));
+            var jul = yearDim.group().reduceSum(dc.pluck('jul'));
+            var aug = yearDim.group().reduceSum(dc.pluck('aug'));
+            var sep = yearDim.group().reduceSum(dc.pluck('sep'));
+            var oct = yearDim.group().reduceSum(dc.pluck('oct'));
+            var nov = yearDim.group().reduceSum(dc.pluck('nov'));
+            var dece = yearDim.group().reduceSum(dc.pluck('dece'));
+            var total = yearDim.group().reduceSum(dc.pluck('total'));
 
             var minYear = yearDim.bottom(1)[0].year_val;
             var maxYear = yearDim.top(1)[0].year_val;
@@ -64,7 +99,7 @@
             var totalRainLine = dc.lineChart("#rainfall-chart");
             totalRainLine
                 .width(1000).height(400)
-                .margins({top: 80, right: 80, bottom: 40, left: 80})
+                .margins({top: 80, right: 80, bottom: 40, left: 150})
                 .dimension(yearDim)
                 .elasticX(true)
                 .x(d3.time.scale().domain([minYear, maxYear]))
@@ -73,13 +108,20 @@
                 .stack(mar, "Mar")
                 .stack(apr, "Apr")
                 .stack(may, "May")
+                .stack(jun, "Jun")
+                .stack(jul, "Jul")
+                .stack(aug, "Aug")
+                .stack(sep, "Sep")
+                .stack(oct, "Oct")
+                .stack(nov, "Nov")
+                .stack(dece, "Dec")
                 .elasticY(true)
                 .renderArea(true)
                 .renderHorizontalGridLines(true)
                 .renderVerticalGridLines(true)
                 .yAxisLabel("Rainfall (mm)")
                 .xAxisLabel("Year")
-                .legend(dc.legend().x(50).y(10).itemHeight(10).gap(5));
+                .legend(dc.legend().x(30).y(10).itemHeight(10).gap(5));
 
             var stateDim = cf.dimension(function(d) {
                 return d.statename;
@@ -87,6 +129,7 @@
 
             var totalRain = stateDim.group().reduceSum(function(d) {return d.total;});
 
+            /*
             var totalRainPie = dc.pieChart("#monthly-chart");
             totalRainPie
                 .width(300).height(300)
@@ -95,6 +138,8 @@
                 .group(totalRain)
                 .innerRadius(15)
                 .legend(dc.legend());
+
+            */
 
             var stateRow = dc.rowChart("#state-row-chart");
             stateRow
@@ -113,6 +158,14 @@
                     function(d) {return d.mar; },
                     function(d) {return d.apr; },
                     function(d) {return d.may; },
+                    function(d) {return d.jun; },
+                    function(d) {return d.jul; },
+                    function(d) {return d.aug; },
+                    function(d) {return d.sep; },
+                    function(d) {return d.oct; },
+                    function(d) {return d.nov; },
+                    function(d) {return d.dece; },
+                    function(d) {return d.total; },
                 ]);
 
             dc.renderAll();
@@ -166,7 +219,6 @@
                     {
                         d.statename = map.statename;
                         d.distname = map.district;
-                        //console.log ("Got " + d.districtid, (map.districtcode) + " for " + d.distname + " in state " + d.stateid + " with name " + d.statename);
                     }
                 });
             });
