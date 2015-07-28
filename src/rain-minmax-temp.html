@@ -26,7 +26,7 @@
       <center> <h3>Rainfall data discovery</h3> </center>
 
       <div class='row'>
-        <h4>Yearly stack graph</h4>
+        <h4>Avg Rainfall vs Years</h4>
         <div class='span12' id='rainfall-chart'> 
         <a href='javascript:dc.filterAll(); dc.redrawAll();'>Reset All</a>
         </div>
@@ -34,7 +34,7 @@
 
       <div class='row'>
         <div class='span12' id='state-row-chart'>
-        <h4>State-wise total rainfall</h4>
+        <h4>State-wise rainfall</h4>
         </div>
       </div>
 
@@ -50,6 +50,8 @@
           <h4>Data table</h4>
             <thead>
               <tr class='header'>
+                    <th>State</th>
+                    <th>District</th>
                     <th>Year</th>
                     <th>Jan</th>
                     <th>Feb</th>
@@ -63,6 +65,7 @@
                     <th>Oct</th>
                     <th>Nov</th>
                     <th>Dec</th>
+                    <th>Avg</th>
                     <th>Total</th>
               </tr>
             </thead>
@@ -92,9 +95,51 @@
             var cf = crossfilter(rain);
 
             var yearDim = cf.dimension(function(d) {
-                return (d.year_val);
+                return (new Date(d.year_val, 1, 0));
             });
 
+            var jan = yearDim.group().reduceSum(function(d) {
+                return d.jan / 100;
+            });
+
+            var feb = yearDim.group().reduceSum(function(d) {
+                return d.feb / 100;
+            });
+
+            var mar = yearDim.group().reduceSum(function(d) {
+                return d.mar / 100;
+            });
+
+            var apr = yearDim.group().reduceSum(function(d) {
+                return d.apr / 100;
+            });
+
+            var may = yearDim.group().reduceSum(function(d) {
+                return d.may / 100;
+            });
+            var jun = yearDim.group().reduceSum(function(d) {
+                return d.jun / 100;
+            });
+            var jul = yearDim.group().reduceSum(function(d) {
+                return d.jul / 100;
+            });
+            var aug = yearDim.group().reduceSum(function(d) {
+                return d.aug / 100;
+            });
+            var sep = yearDim.group().reduceSum(function(d) {
+                return d.sep / 100;
+            });
+            var oct = yearDim.group().reduceSum(function(d) {
+                return d.oct / 100;
+            });
+            var nov = yearDim.group().reduceSum(function(d) {
+                return d.nov / 100;
+            });
+            var dece = yearDim.group().reduceSum(function(d) {
+                return d.dece / 100;
+            });
+
+            /*
             var jan = yearDim.group().reduceSum(dc.pluck('jan'));
             var feb = yearDim.group().reduceSum(dc.pluck('feb'));
             var mar = yearDim.group().reduceSum(dc.pluck('mar'));
@@ -107,18 +152,25 @@
             var oct = yearDim.group().reduceSum(dc.pluck('oct'));
             var nov = yearDim.group().reduceSum(dc.pluck('nov'));
             var dece = yearDim.group().reduceSum(dc.pluck('dece'));
+
+            /*
+            var avg = yearDim.group().reduceSum(dc.pluck('avg'));
             var total = yearDim.group().reduceSum(dc.pluck('total'));
+            */
 
             var minYear = yearDim.bottom(1)[0].year_val;
             var maxYear = yearDim.top(1)[0].year_val;
+            var lYear = new Date(minYear, 1, 0);
+            var rYear = new Date(maxYear, 1, 0);
 
             var totalRainLine = dc.lineChart("#rainfall-chart");
             totalRainLine
                 .width(1000).height(300)
-                .margins({top: 50, right: 10, bottom: 30, left: 120})
+                .margins({top: 50, right: 10, bottom: 50, left: 120})
                 .dimension(yearDim)
                 .elasticX(true)
-                .x(d3.time.scale().domain([minYear, maxYear]))
+                //.x(d3.time.scale().domain([minYear, maxYear]))
+                .x(d3.time.scale().domain([lYear, rYear]))
                 .group(jan, "Jan")
                 .stack(feb, "Feb")
                 .stack(mar, "Mar")
@@ -136,20 +188,18 @@
                 .renderArea(true)
                 .renderHorizontalGridLines(true)
                 .renderVerticalGridLines(true)
-                .yAxisLabel("Rainfall (mm)")
+                //.yAxisLabel("Avg Rainfall (mm)")
                 .xAxisLabel("Year")
                 .valueAccessor(function (d) {
                     return d.value;
                 })
-                .legend(dc.legend().x(1).y(1).itemHeight(10).gap(5));
+                .legend(dc.legend().x(20).y(20).itemHeight(10).gap(5));
 
 
             var stateDim = cf.dimension(function(d) {
-                var temp = d.stateid.toString() + "." + d.statename;
-                //console.log(temp);
-                return temp.toString();
+                return (d.stateid.toString() + "." + d.statename).toString();
             });
-            var totalRain = stateDim.group().reduceSum(function(d) {return d.total;});
+            var avgRain = stateDim.group().reduceSum(function(d) {return d.avg;});
 
             var stateRow = dc.rowChart("#state-row-chart");
             stateRow
@@ -158,7 +208,7 @@
                 .label(function (d) {
                     return d.key.split(".")[1];
                 })
-                .group(totalRain)
+                .group(avgRain)
                 .elasticX(true);
 
             /*
@@ -171,7 +221,7 @@
                 .width(300).height(300)
                 //.slicesCap(15)
                 .dimension(distDim)
-                .group(totalRain)
+                .group(avgRain)
                 .innerRadius(15)
                 .legend(dc.legend());
                 */
@@ -179,11 +229,14 @@
             var dataTable = dc.dataTable("#data-table");
             dataTable
                 .dimension(stateDim)
-                //.group(function(d) { return d.year_val.getFullYear(); })
+                //.group(function(d) { return d.year_val; })
                 .group(function(d) { return "<center> Data Table </center> " })
+                //.group(function(d) { return "<center> Data Table </center> " })
                 .size(120)
                 .columns([
-                    function(d) {return d.year_val.getFullYear(); },
+                    function(d) {return d.statename; },
+                    function(d) {return d.distname; },
+                    function(d) {return d.year_val; },
                     function(d) {return Math.round(d.jan); },
                     function(d) {return Math.round(d.feb); },
                     function(d) {return Math.round(d.mar); },
@@ -196,10 +249,11 @@
                     function(d) {return Math.round(d.oct); },
                     function(d) {return Math.round(d.nov); },
                     function(d) {return Math.round(d.dece); },
+                    function(d) {return Math.round(d.avg); },
                     function(d) {return Math.round(d.total); },
                 ])
-                .sortBy(function(d){ return d.year_val.getFullYear(); })
-                .order(d3.ascending);
+                .sortBy(function(d){ return d.avg; })
+                .order(d3.descending);
 
             dc.renderAll();
         }
@@ -220,8 +274,9 @@
             rain.forEach(function (d) {
                 d.stateid = +d.stateid;
                 d.districtid = +d.districtid;
-                d.year_val = +d.year_val;
+                //d.year_val = +d.year_val;
                 d.year_val = new Date(d.year_val, 1, 0);
+                d.year_val = d.year_val.getFullYear();
                 d.jan = +d.jan;
                 d.feb = +d.feb;
                 d.mar = +d.mar;
@@ -235,6 +290,7 @@
                 d.nov = +d.nov;
                 d.dece = +d.dece;
                 d.total = d.jan + d.feb + d.mar + d.apr + d.may + d.jun + d.jul + d.aug + d.sep + d.oct + d.nov + d.dece;
+                d.avg = d.total / 12;
             });
 
             //window.alert("Done rain coercion");
@@ -247,6 +303,7 @@
             */
 
             rain.forEach(function(d) {
+                //console.log(d.year_val);
                 st_dist_map.forEach(function(map) {
                     if ((d.stateid === map.statecode) && (d.districtid === map.districtcode))
                     {
