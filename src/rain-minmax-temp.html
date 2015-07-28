@@ -5,59 +5,75 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="../css/dc.css"/>
 
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
   </head>
   <body>
 
+    <script type="text/javascript" src="../lib/jquery.min.js"></script> 
     <script type="text/javascript" src="../lib/crossfilter.min.js"></script> 
     <script type="text/javascript" src="../lib/d3.min.js" charset="utf-8"></script>
     <script type="text/javascript" src="../lib/dc.min.js"></script>
     <script type="text/javascript" src="../lib/queue.min.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
-    <a href='javascript:dc.filterAll(); dc.redrawAll();'>Reset All</a>
-    <div id="rainfall-chart"></div>
-    <div id="monthly-chart"></div>
-    <br>
-    <div id="state-row-chart"></div>
 
-    <div id='dc-data-table'>
-    <div class='header'>
-        <span>Jan</span>
-        <span>Feb</span>
-        <span>Mar</span>
-        <span>Apr</span>
-        <span>May</span>
-        <span>Jun</span>
-        <span>Jul</span>
-        <span>Aug</span>
-        <span>Sep</span>
-        <span>Oct</span>
-        <span>Nov</span>
-        <span>Dec</span>
-        <span>TOTAL</span>
+    <div class='container' id='main-container'>
+    <div class='content'>
+    <div class='container' style='font: 12px sans-serif;'>
+
+      <center> <h3>Rainfall data discovery</h3> </center>
+
+      <div class='row'>
+        <h4>Yearly stack graph</h4>
+        <div class='span12' id='rainfall-chart'> 
+        <a href='javascript:dc.filterAll(); dc.redrawAll();'>Reset All</a>
+        </div>
+      </div>
+
+      <div class='row'>
+        <div class='span12' id='state-row-chart'>
+        <h4>State-wise total rainfall</h4>
+        </div>
+      </div>
+
+      <!--div class='row'>
+        <div class='span12' id='dist-pie-chart'>
+        <h4>Dist-wise total rainfall</h4>
+        </div>
+      </div-->
+
+      <div class='row'>
+        <div class='span12'>
+          <table class='table table-hover'id='data-table'>
+          <h4>Data table</h4>
+            <thead>
+              <tr class='header'>
+                    <th>Year</th>
+                    <th>Jan</th>
+                    <th>Feb</th>
+                    <th>Mar</th>
+                    <th>Apr</th>
+                    <th>May</th>
+                    <th>Jun</th>
+                    <th>Jul</th>
+                    <th>Aug</th>
+                    <th>Sep</th>
+                    <th>Oct</th>
+                    <th>Nov</th>
+                    <th>Dec</th>
+                    <th>Total</th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
+
     </div>
-    <!-- data rows will filled in here -->
+    </div>
     </div>
 
-    <!--div>
-		<table id="dc-data-table">
-			<thead>
-			<tr class="header">
-				<th>Jan</th>
-				<th>Feb</th>
-				<th>Mar</th>
-				<th>Apr</th>
-				<th>May</th>
-				<th>Jun</th>
-				<th>Jul</th>
-				<th>Aug</th>
-				<th>Sep</th>
-				<th>Oct</th>
-				<th>Nov</th>
-				<th>Dec</th>
-			</tr>
-			</thead>
-		</table>
-    </div--> 
 
     <script type="text/javascript">
 
@@ -98,8 +114,8 @@
 
             var totalRainLine = dc.lineChart("#rainfall-chart");
             totalRainLine
-                .width(1000).height(400)
-                .margins({top: 80, right: 80, bottom: 40, left: 150})
+                .width(1000).height(300)
+                .margins({top: 50, right: 10, bottom: 30, left: 120})
                 .dimension(yearDim)
                 .elasticX(true)
                 .x(d3.time.scale().domain([minYear, maxYear]))
@@ -116,57 +132,74 @@
                 .stack(nov, "Nov")
                 .stack(dece, "Dec")
                 .elasticY(true)
+                //.xAxis().ticks(4)
                 .renderArea(true)
                 .renderHorizontalGridLines(true)
                 .renderVerticalGridLines(true)
                 .yAxisLabel("Rainfall (mm)")
                 .xAxisLabel("Year")
-                .legend(dc.legend().x(30).y(10).itemHeight(10).gap(5));
+                .valueAccessor(function (d) {
+                    return d.value;
+                })
+                .legend(dc.legend().x(1).y(1).itemHeight(10).gap(5));
+
 
             var stateDim = cf.dimension(function(d) {
-                return d.statename;
+                var temp = d.stateid.toString() + "." + d.statename;
+                //console.log(temp);
+                return temp.toString();
             });
-
             var totalRain = stateDim.group().reduceSum(function(d) {return d.total;});
-
-            /*
-            var totalRainPie = dc.pieChart("#monthly-chart");
-            totalRainPie
-                .width(300).height(300)
-                .slicesCap(7)
-                .dimension(stateDim)
-                .group(totalRain)
-                .innerRadius(15)
-                .legend(dc.legend());
-
-            */
 
             var stateRow = dc.rowChart("#state-row-chart");
             stateRow
-                .width(850).height(800)
+                .width(1000).height(800)
                 .dimension(stateDim)
+                .label(function (d) {
+                    return d.key.split(".")[1];
+                })
                 .group(totalRain)
                 .elasticX(true);
 
-            var dataTable = dc.dataTable("#dc-data-table");
+            /*
+            var distDim = cf.dimension(function(d) {
+                return d.distname;
+            });
+            var distRain = distDim.group().reduceSum(function(d) {return d.total;});
+            var distRainPie = dc.pieChart("#dist-pie-chart");
+            distRainPie
+                .width(300).height(300)
+                //.slicesCap(15)
+                .dimension(distDim)
+                .group(totalRain)
+                .innerRadius(15)
+                .legend(dc.legend());
+                */
+
+            var dataTable = dc.dataTable("#data-table");
             dataTable
                 .dimension(stateDim)
-                .group(function(d) { return d.year_val; })
+                //.group(function(d) { return d.year_val.getFullYear(); })
+                .group(function(d) { return "<center> Data Table </center> " })
+                .size(120)
                 .columns([
-                    function(d) {return d.jan; },
-                    function(d) {return d.feb; },
-                    function(d) {return d.mar; },
-                    function(d) {return d.apr; },
-                    function(d) {return d.may; },
-                    function(d) {return d.jun; },
-                    function(d) {return d.jul; },
-                    function(d) {return d.aug; },
-                    function(d) {return d.sep; },
-                    function(d) {return d.oct; },
-                    function(d) {return d.nov; },
-                    function(d) {return d.dece; },
-                    function(d) {return d.total; },
-                ]);
+                    function(d) {return d.year_val.getFullYear(); },
+                    function(d) {return Math.round(d.jan); },
+                    function(d) {return Math.round(d.feb); },
+                    function(d) {return Math.round(d.mar); },
+                    function(d) {return Math.round(d.apr); },
+                    function(d) {return Math.round(d.may); },
+                    function(d) {return Math.round(d.jun); },
+                    function(d) {return Math.round(d.jul); },
+                    function(d) {return Math.round(d.aug); },
+                    function(d) {return Math.round(d.sep); },
+                    function(d) {return Math.round(d.oct); },
+                    function(d) {return Math.round(d.nov); },
+                    function(d) {return Math.round(d.dece); },
+                    function(d) {return Math.round(d.total); },
+                ])
+                .sortBy(function(d){ return d.year_val.getFullYear(); })
+                .order(d3.ascending);
 
             dc.renderAll();
         }
