@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title> Melting data </title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../css/dc.css"/>
+
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+  </head>
+  <body>
+
+    <script type="text/javascript" src="../lib/jquery.min.js"></script> 
+    <script type="text/javascript" src="../lib/crossfilter.min.js"></script> 
+    <script type="text/javascript" src="../lib/d3.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../lib/dc.min.js"></script>
+    <script type="text/javascript" src="../lib/queue.min.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://raw.githubusercontent.com/jrideout/melt.js/master/melt.js"></script>
+
+    <script type="text/javascript">
+
+        function startDoingThings()
+        {
+            queue()
+                .defer(d3.csv, "../data/state-dist-map.csv")
+                .defer(d3.csv, "../data/all-dist-precip.csv")
+                .await(analyze);
+        }
+
+        function meltData(rain)
+        {
+            var newrain = melt(rain,["stateid","districtid", "year_val", "avg", "total", "distname", "districid", "stateid", "statename" ], "month");
+
+            var index = 0;
+            for (var i = 0; i < 3; i++)
+            {
+                console.log("Before: ", rain[i]); 
+
+                for (var j = 0; j < 12; j++)
+                {
+                    console.log("After[" + index + "]: ", newrain[index]);
+                    index++;
+                }
+            }
+        }
+
+        function analyze(error, st_dist_map, rain)
+        {
+
+            if (error) { console.log(error); }
+
+            st_dist_map.forEach(function (d) {
+                d.statecode = +d.statecode;
+                d.districtcode = +d.districtcode;
+            });
+
+            var format = d3.time.format("%Y");
+            rain.forEach(function (d) {
+                d.stateid = +d.stateid;
+                d.districtid = +d.districtid;
+                //d.year_val = +d.year_val;
+                d.year_val = new Date(d.year_val, 1, 0);
+                d.year_val = d.year_val.getFullYear();
+                d.jan = +d.jan;
+                d.feb = +d.feb;
+                d.mar = +d.mar;
+                d.apr = +d.apr;
+                d.may = +d.may;
+                d.jun = +d.jun;
+                d.jul = +d.jul;
+                d.aug = +d.aug;
+                d.sep = +d.sep;
+                d.oct = +d.oct;
+                d.nov = +d.nov;
+                d.dece = +d.dece;
+                d.total = d.jan + d.feb + d.mar + d.apr + d.may + d.jun + d.jul + d.aug + d.sep + d.oct + d.nov + d.dece;
+                d.avg = d.total / 12;
+            });
+
+            rain.forEach(function(d) {
+                //console.log(d.year_val);
+                st_dist_map.forEach(function(map) {
+                    if ((d.stateid === map.statecode) && (d.districtid === map.districtcode))
+                    {
+                        d.statename = map.statename;
+                        d.distname = map.district;
+                    }
+                });
+            });
+
+            meltData(rain);
+        }
+
+
+        window.onload = startDoingThings;
+
+    //# sourceURL=src/melt-test.html
+    </script>
+
+</body>
+</html>
